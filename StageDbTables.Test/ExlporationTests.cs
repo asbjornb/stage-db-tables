@@ -32,10 +32,8 @@ namespace StageDbTables.Test
         public void ShouldConnectToDefaultDockerDatabase()
         {
             using var connection = new SqlConnection(testDatabase.ConnectionString);
-            using var command = new SqlCommand();
             connection.Open();
-            command.Connection = connection;
-            command.CommandText = "SELECT 1";
+            using var command = new SqlCommand("SELECT 1", connection);
             var reader = command.ExecuteReader();
             var count = 0;
             while (reader.Read())
@@ -49,25 +47,22 @@ namespace StageDbTables.Test
         public void ShouldConnectToNewDatabase()
         {
             //Create a new database named StageDbTablesTest
+            const string testDatabaseName = "StageDbTablesTest";
             using var defaultConnection = new SqlConnection(testDatabase.ConnectionString);
-            using var createDatabaseCommand = new SqlCommand();
             defaultConnection.Open();
-            createDatabaseCommand.Connection = defaultConnection;
-            createDatabaseCommand.CommandText = "CREATE DATABASE [StageDbTablesTest]";
+            using var createDatabaseCommand = new SqlCommand($"CREATE DATABASE {testDatabaseName};", defaultConnection);
             createDatabaseCommand.ExecuteNonQuery();
-            testDatabase.Database = "StageDbTablesTest";
+            testDatabase.Database = testDatabaseName;
 
             //Connect to new database and check name
             using var connection = new SqlConnection(testDatabase.ConnectionString);
-            using var queryCommand = new SqlCommand();
             connection.Open();
-            queryCommand.Connection = connection;
-            queryCommand.CommandText = "SELECT DB_NAME()";
+            using var queryCommand = new SqlCommand("SELECT DB_NAME()", connection);
             var reader = queryCommand.ExecuteReader();
             var count = 0;
             while (reader.Read())
             {
-                reader.GetString(0).ShouldBe("StageDbTablesTest");
+                reader.GetString(0).ShouldBe(testDatabaseName);
                 count++;
             }
             count.ShouldBe(1);

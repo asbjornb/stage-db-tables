@@ -2,18 +2,15 @@ using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Containers;
 using NUnit.Framework;
-using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace StageDbTables.Test;
 
-#nullable disable
-
 [SetUpFixture]
 public class SetupDatabaseForTests
 {
-    private static TestcontainerDatabase masterDatabase;
+    private static TestcontainerDatabase testDatabase;
     private const string testDatabaseName = "StageDbTablesTest";
     private static readonly MsSqlTestcontainerConfiguration configuration = new()
     {
@@ -22,34 +19,28 @@ public class SetupDatabaseForTests
         Password = "StrongPa$$word",
     };
 
-    public static string ConnectionString => masterDatabase.ConnectionString;
-    public static SqlConnection TestDatabaseConnection => new(masterDatabase.ConnectionString);
+    public static string ConnectionString => testDatabase.ConnectionString;
+    public static SqlConnection TestDatabaseConnection => new(testDatabase.ConnectionString);
 
     [OneTimeSetUp]
     public async Task OneTimeSetUpAsync()
     {
         //Create container and master database
-        Console.WriteLine("OneTimeSetUp started");
-        masterDatabase = new TestcontainersBuilder<MsSqlTestcontainer>()
+        testDatabase = new TestcontainersBuilder<MsSqlTestcontainer>()
             .WithDatabase(configuration)
             .Build();
-        await masterDatabase.StartAsync();
-        Console.WriteLine("Master started");
+        await testDatabase.StartAsync();
         //Create a testDatabase
-        using var defaultConnection = new SqlConnection(masterDatabase.ConnectionString);
-        using var createDatabaseCommand = new SqlCommand();
+        using var defaultConnection = new SqlConnection(testDatabase.ConnectionString);
         defaultConnection.Open();
-        createDatabaseCommand.Connection = defaultConnection;
-        createDatabaseCommand.CommandText = $"CREATE DATABASE {testDatabaseName};";
+        using var createDatabaseCommand = new SqlCommand($"CREATE DATABASE {testDatabaseName};", defaultConnection);
         await createDatabaseCommand.ExecuteNonQueryAsync();
-        Console.WriteLine(masterDatabase.ConnectionString);
-        masterDatabase.Database = testDatabaseName;
-        Console.WriteLine(masterDatabase.ConnectionString);
+        testDatabase.Database = testDatabaseName; //Use new test database rather than master
     }
 
     [OneTimeTearDown]
     public async Task OneTimeTearDown()
     {
-        await masterDatabase.DisposeAsync();
+        await testDatabase.DisposeAsync();
     }
 }

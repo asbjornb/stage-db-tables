@@ -56,7 +56,7 @@ namespace StageDbTables.Test
             createDatabaseCommand.CommandText = "CREATE DATABASE [StageDbTablesTest]";
             createDatabaseCommand.ExecuteNonQuery();
             testDatabase.Database = "StageDbTablesTest";
-            
+
             //Connect to new database and check name
             using var connection = new SqlConnection(testDatabase.ConnectionString);
             using var queryCommand = new SqlCommand();

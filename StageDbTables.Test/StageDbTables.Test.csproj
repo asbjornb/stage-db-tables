@@ -26,4 +26,8 @@
     <PackageReference Include="Testcontainers" Version="2.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\StageDbTables\StageDbTables.csproj" />
+  </ItemGroup>
+
 </Project>

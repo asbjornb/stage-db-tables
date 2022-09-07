@@ -5,7 +5,7 @@ VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StageDbTables", "StageDbTables\StageDbTables.csproj", "{F4139166-30DC-43E4-8C03-E89A7726EB58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StageDbTables.Test", "StageDbTables.Test\StageDbTables.Test.csproj", "{60EE4339-1569-4A80-A20E-CB6CF81D5F24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StageDbTables.Test", "StageDbTables.Test\StageDbTables.Test.csproj", "{60EE4339-1569-4A80-A20E-CB6CF81D5F24}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

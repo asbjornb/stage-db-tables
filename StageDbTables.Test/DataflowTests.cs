@@ -8,12 +8,12 @@ namespace StageDbTables.Test;
 [TestFixture]
 public class DataflowTests
 {
-    [Test]
-    public void ShouldCopyData()
-    {
-        const string sourceTableName = "dbo.TestTable";
-        const string destinationTableName = "dbo.DestTable";
+    private const string sourceTableName = "dbo.TestTable";
+    private const string destinationTableName = "dbo.DestTable";
 
+    [SetUp]
+    public void SetUp()
+    {
         //Use testconnection
         using var testConnection = SetupDatabaseForTests.TestDatabaseConnection;
         testConnection.Open();
@@ -28,6 +28,31 @@ public class DataflowTests
         createSourceTableCommand.ExecuteNonQuery();
         using var createDestTableCommand = new SqlCommand(createDestinationTableStatement, testConnection);
         createDestTableCommand.ExecuteNonQuery();
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        //Use testconnection
+        using var testConnection = SetupDatabaseForTests.TestDatabaseConnection;
+        testConnection.Open();
+
+        //Drop source and dest tables
+        const string dropSourceTableStatement = $"DROP TABLE {sourceTableName};";
+        const string dropDestinationTableStatement = $"DROP TABLE {destinationTableName};";
+
+        using var createSourceTableCommand = new SqlCommand(dropSourceTableStatement, testConnection);
+        createSourceTableCommand.ExecuteNonQuery();
+        using var createDestTableCommand = new SqlCommand(dropDestinationTableStatement, testConnection);
+        createDestTableCommand.ExecuteNonQuery();
+    }
+
+    [Test]
+    public void ShouldCopyData()
+    {
+        //Use testconnection
+        using var testConnection = SetupDatabaseForTests.TestDatabaseConnection;
+        testConnection.Open();
 
         //Insert a bit of test data
         using var insertDataCommand = new SqlCommand($"INSERT INTO {sourceTableName}(TestString) VALUES (@0);", testConnection);

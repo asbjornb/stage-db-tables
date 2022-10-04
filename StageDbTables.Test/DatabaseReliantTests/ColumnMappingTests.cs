@@ -88,4 +88,20 @@ public class ColumnMappingTests
         }
         count.ShouldBe(10);
     }
+
+    [Test]
+    public void ShouldGenerateMapForColumnsInBothTables()
+    {
+        //Setup dataflow to generate map
+        var dataflow = new Dataflow(sourceTableName, destinationTableName, SetupDatabaseForTests.ConnectionString
+            , SetupDatabaseForTests.ConnectionString);
+
+        //Retieve a map
+        var columnMap = dataflow.GetMatchingColumns();
+
+        //Assert
+        columnMap.Count.ShouldBe(2);
+        columnMap.ShouldContain(new ColumnMapping("Id", "Id"));
+        columnMap.ShouldContain(new ColumnMapping("TestString", "TestString"));
+    }
 }

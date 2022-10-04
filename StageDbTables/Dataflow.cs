@@ -1,5 +1,6 @@
 ﻿using StageDbTables.Model;
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 
 namespace StageDbTables;
@@ -13,6 +14,7 @@ public class Dataflow
     private readonly Table destinationTable;
     private readonly string sourceConnectionString;
     private readonly string destinationConnectionString;
+    private readonly List<ColumnMapping> map = new List<ColumnMapping>();
 
     public Dataflow(string sourceTable, string destinationTable, string sourceConnectionString, string destinationConnectionString)
     {
@@ -21,6 +23,11 @@ public class Dataflow
         this.destinationTable = new Table(destinationTable);
         this.sourceConnectionString = sourceConnectionString;
         this.destinationConnectionString = destinationConnectionString;
+    }
+
+    public Dataflow(string sourceTable, string destinationTable, string sourceConnectionString, string destinationConnectionString, List<ColumnMapping> columnMap) : this(sourceTable, destinationTable, sourceConnectionString, destinationConnectionString)
+    {
+        map = columnMap;
     }
 
     public Result Execute()
@@ -36,6 +43,15 @@ public class Dataflow
             destinationConnection.Open();
 
             using var bulkCopy = new SqlBulkCopy(destinationConnection);
+
+            if (map.Count > 0)
+            {
+                foreach (var column in map)
+                {
+                    bulkCopy.ColumnMappings.Add(column.SourceColumnName, column.DestinationColumnName);
+                }
+            }
+
             bulkCopy.DestinationTableName = destinationTable.GetFullTableName();
 
             bulkCopy.WriteToServer(reader);

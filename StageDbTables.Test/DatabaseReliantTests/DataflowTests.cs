@@ -1,9 +1,10 @@
 using NUnit.Framework;
 using Shouldly;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace StageDbTables.Test;
+namespace StageDbTables.Test.DatabaseReliantTests;
 
 [TestFixture]
 public class DataflowTests
@@ -20,9 +21,9 @@ public class DataflowTests
 
         //Create source and dest tables
         const string createSourceTableStatement = $"CREATE TABLE {sourceTableName}(Id int IDENTITY(0,1) NOT NULL PRIMARY KEY," +
-            " TestString varchar(256) NOT NULL);";
+            " TestString varchar(256) NOT NULL, TestDate date NULL);";
         const string createDestinationTableStatement = $"CREATE TABLE {destinationTableName}(Id int NOT NULL PRIMARY KEY," +
-            " TestString varchar(256) NOT NULL);";
+            " TestString varchar(256) NOT NULL, OtherDate date NULL, ThirdDate date NULL);";
 
         using var createSourceTableCommand = new SqlCommand(createSourceTableStatement, testConnection);
         createSourceTableCommand.ExecuteNonQuery();

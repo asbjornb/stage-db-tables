@@ -16,20 +16,20 @@ public class Dataflow
     private readonly Table destinationTable;
     private readonly string sourceConnectionString;
     private readonly string destinationConnectionString;
-    private readonly List<ColumnMapping> map = new List<ColumnMapping>();
+
+    public List<ColumnMapping> Map { get; set; }
 
     public Dataflow(string sourceTable, string destinationTable, string sourceConnectionString, string destinationConnectionString)
+        : this(sourceTable, destinationTable, sourceConnectionString, destinationConnectionString, new()){}
+
+    public Dataflow(string sourceTable, string destinationTable, string sourceConnectionString, string destinationConnectionString, List<ColumnMapping> columnMap)
     {
         //Take SqlConnection, ConnectionString or a new Database class?
         this.sourceTable = new Table(sourceTable);
         this.destinationTable = new Table(destinationTable);
         this.sourceConnectionString = sourceConnectionString;
         this.destinationConnectionString = destinationConnectionString;
-    }
-
-    public Dataflow(string sourceTable, string destinationTable, string sourceConnectionString, string destinationConnectionString, List<ColumnMapping> columnMap) : this(sourceTable, destinationTable, sourceConnectionString, destinationConnectionString)
-    {
-        map = columnMap;
+        Map = columnMap;
     }
 
     /// <summary>
@@ -49,9 +49,9 @@ public class Dataflow
 
             using var bulkCopy = new SqlBulkCopy(destinationConnection);
 
-            if (map.Count > 0)
+            if (Map.Count > 0)
             {
-                foreach (var column in map)
+                foreach (var column in Map)
                 {
                     bulkCopy.ColumnMappings.Add(column.SourceColumnName, column.DestinationColumnName);
                 }

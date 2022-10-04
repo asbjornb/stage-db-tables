@@ -50,7 +50,6 @@ public class ColumnMappingTests
         createDestTableCommand.ExecuteNonQuery();
     }
 
-    
     [Test]
     public void ShouldMapColumns()
     {
@@ -103,5 +102,45 @@ public class ColumnMappingTests
         columnMap.Count.ShouldBe(2);
         columnMap.ShouldContain(new ColumnMapping("Id", "Id"));
         columnMap.ShouldContain(new ColumnMapping("TestString", "TestString"));
+    }
+
+    [Test]
+    public void ShouldMapSimplyWithDefaultsAndAdded()
+    {
+        //Use testconnection
+        using var testConnection = SetupDatabaseForTests.TestDatabaseConnection;
+        testConnection.Open();
+
+        //Insert a bit of test data
+        using var insertDataCommand = new SqlCommand($"INSERT INTO {sourceTableName}(TestString, TestDate) VALUES (@0, @1);", testConnection);
+        insertDataCommand.Parameters.Add("@0", SqlDbType.VarChar);
+        insertDataCommand.Parameters.Add("@1", SqlDbType.Date);
+        for (int i = 0; i < 10; i++)
+        {
+            insertDataCommand.Parameters["@0"].Value = $"Text {i}";
+            insertDataCommand.Parameters["@1"].Value = new DateTime(2020, 1, 1 + i);
+            insertDataCommand.ExecuteNonQuery();
+        }
+
+        //Try moving with a dataflow
+        var dataflow = new Dataflow(sourceTableName, destinationTableName, SetupDatabaseForTests.ConnectionString
+            , SetupDatabaseForTests.ConnectionString);
+        var map = dataflow.GetMatchingColumns();
+        map.Add(new("TestDate", "ThirdDate"));
+        dataflow.Map = map;
+        dataflow.Execute();
+
+        //Assert
+        using var queryCommand = new SqlCommand($"SELECT * FROM {destinationTableName};", testConnection);
+        var reader = queryCommand.ExecuteReader();
+        var count = 0;
+        while (reader.Read())
+        {
+            reader.GetString(1).ShouldBe($"Text {reader.GetInt32(0)}");
+            reader.IsDBNull(2).ShouldBeTrue();
+            reader.GetDateTime(3).ShouldBe(new DateTime(2020, 1, 1 + reader.GetInt32(0)));
+            count++;
+        }
+        count.ShouldBe(10);
     }
 }

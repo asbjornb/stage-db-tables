@@ -93,11 +93,11 @@ public class ColumnMappingTests
     public void ShouldGenerateMapForColumnsInBothTables()
     {
         //Setup dataflow to generate map
-        var dataflow = new Dataflow(sourceTableName, destinationTableName, SetupDatabaseForTests.ConnectionString
+        var link = new Link(sourceTableName, destinationTableName, SetupDatabaseForTests.ConnectionString
             , SetupDatabaseForTests.ConnectionString);
 
         //Retieve a map
-        var columnMap = dataflow.GetMatchingColumns();
+        var columnMap = link.GetMatchingColumns();
 
         //Assert
         columnMap.Count.ShouldBe(2);
@@ -124,11 +124,11 @@ public class ColumnMappingTests
         }
 
         //Try moving with a dataflow
-        var dataflow = new Dataflow(sourceTableName, destinationTableName, SetupDatabaseForTests.ConnectionString
+        var link = new Link(sourceTableName, destinationTableName, SetupDatabaseForTests.ConnectionString
             , SetupDatabaseForTests.ConnectionString);
-        var map = dataflow.GetMatchingColumns();
+        var map = link.GetMatchingColumns();
         map.Add(new("TestDate", "ThirdDate"));
-        dataflow.Map = map;
+        var dataflow = new Dataflow(link, map);
         await dataflow.ExecuteAsync();
 
         //Assert

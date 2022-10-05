@@ -3,7 +3,7 @@
 /// <summary>
 /// Tables are the sources and destinations for data operations
 /// </summary>
-internal class Table
+public class Table
 {
     /// <summary>
     /// Name of the table in the database. Omit brackets. Schema is separate.

@@ -34,14 +34,10 @@ public class Dataflow
     /// </summary>
     public async Task<Result> ExecuteAsync()
     {
-        using var sourceConnection = link.GetSourceConnection();
         try
         {
-            var commandSourceData = new SqlCommand($"SELECT * FROM {link.SourceTableName};", sourceConnection);
-            using var reader = commandSourceData.ExecuteReader();
-
+            //Setup bulkcopy with destination
             using var destinationConnection = link.GetDestinationConnection();
-
             using var bulkCopy = new SqlBulkCopy(destinationConnection);
 
             if (Map.Count > 0)
@@ -54,6 +50,12 @@ public class Dataflow
 
             bulkCopy.DestinationTableName = link.DestinationTableName;
 
+            //Read from source
+            using var sourceConnection = link.GetSourceConnection();
+            var commandSourceData = new SqlCommand($"SELECT * FROM {link.SourceTableName};", sourceConnection);
+            using var reader = commandSourceData.ExecuteReader();
+
+            //Write to destination
             await bulkCopy.WriteToServerAsync(reader);
         }
         catch (Exception e)

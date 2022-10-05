@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace StageDbTables;
 
 /// <summary>
-/// Dataflows are pipelines moving data from source to destination with Execute or ExecuteAsync
+/// Dataflows are pipelines moving data from source to destination with ExecuteAsync
 /// </summary>
 public class Dataflow
 {
@@ -35,7 +36,7 @@ public class Dataflow
     /// <summary>
     /// Flows the data from source to destination
     /// </summary>
-    public Result Execute()
+    public async Task<Result> ExecuteAsync()
     {
         using var sourceConnection = new SqlConnection(sourceConnectionString);
         sourceConnection.Open();
@@ -59,7 +60,7 @@ public class Dataflow
 
             bulkCopy.DestinationTableName = destinationTable.GetFullTableName();
 
-            bulkCopy.WriteToServer(reader);
+            await bulkCopy.WriteToServerAsync(reader);
         }
         catch (Exception e)
         {

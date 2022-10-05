@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace StageDbTables.Test.DatabaseReliantTests;
 
@@ -51,7 +52,7 @@ public class ColumnMappingTests
     }
 
     [Test]
-    public void ShouldMapColumns()
+    public async Task ShouldMapColumns()
     {
         //Use testconnection
         using var testConnection = SetupDatabaseForTests.TestDatabaseConnection;
@@ -72,7 +73,7 @@ public class ColumnMappingTests
         var columnMap = new List<ColumnMapping>() { new("Id", "Id"), new("TestString", "TestString") ,new("TestDate", "ThirdDate") };
         var dataflow = new Dataflow(sourceTableName, destinationTableName, SetupDatabaseForTests.ConnectionString
             , SetupDatabaseForTests.ConnectionString, columnMap);
-        dataflow.Execute();
+        await dataflow.ExecuteAsync();
 
         //Assert
         using var queryCommand = new SqlCommand($"SELECT * FROM {destinationTableName};", testConnection);
@@ -105,7 +106,7 @@ public class ColumnMappingTests
     }
 
     [Test]
-    public void ShouldMapSimplyWithDefaultsAndAdded()
+    public async Task ShouldMapSimplyWithDefaultsAndAdded()
     {
         //Use testconnection
         using var testConnection = SetupDatabaseForTests.TestDatabaseConnection;
@@ -128,7 +129,7 @@ public class ColumnMappingTests
         var map = dataflow.GetMatchingColumns();
         map.Add(new("TestDate", "ThirdDate"));
         dataflow.Map = map;
-        dataflow.Execute();
+        await dataflow.ExecuteAsync();
 
         //Assert
         using var queryCommand = new SqlCommand($"SELECT * FROM {destinationTableName};", testConnection);

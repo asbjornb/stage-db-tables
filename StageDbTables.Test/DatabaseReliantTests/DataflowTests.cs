@@ -3,6 +3,7 @@ using Shouldly;
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace StageDbTables.Test.DatabaseReliantTests;
 
@@ -49,7 +50,7 @@ public class DataflowTests
     }
 
     [Test]
-    public void ShouldCopyData()
+    public async Task ShouldCopyData()
     {
         //Use testconnection
         using var testConnection = SetupDatabaseForTests.TestDatabaseConnection;
@@ -67,7 +68,7 @@ public class DataflowTests
         //Try moving with a dataflow
         var dataflow = new Dataflow(sourceTableName, destinationTableName, SetupDatabaseForTests.ConnectionString
             , SetupDatabaseForTests.ConnectionString);
-        dataflow.Execute();
+        await dataflow.ExecuteAsync();
 
         //Assert
         using var queryCommand = new SqlCommand($"SELECT * FROM {destinationTableName};", testConnection);

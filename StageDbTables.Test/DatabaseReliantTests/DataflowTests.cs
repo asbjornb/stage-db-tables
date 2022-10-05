@@ -67,9 +67,10 @@ public class DataflowTests
         //Try moving with a dataflow
         var dataflow = new Dataflow(sourceTableName, destinationTableName, SetupDatabaseForTests.ConnectionString
             , SetupDatabaseForTests.ConnectionString);
-        await dataflow.ExecuteAsync();
+        var result = await dataflow.ExecuteAsync();
 
         //Assert
+        result.IsSuccess.ShouldBeTrue();
         using var queryCommand = new SqlCommand($"SELECT * FROM {destinationTableName};", testConnection);
         var reader = queryCommand.ExecuteReader();
         var count = 0;

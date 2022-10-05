@@ -27,11 +27,20 @@ var map = new List<ColumnMapping>() {customMapping};
 var flow = new Dataflow(sourceTable, sourceConnectionString, destTable, destConnectionString, map);
 ```
 
+In some cases we just want similar columns to map and then add or modify a few mappings. A Link can assist with matching columns from the schema of the source and destination tables:
+
+```c#
+var link = new Link(sourceTableName, destinationTableName,sourceConnectionString, destConnectionString);
+var map = link.GetMatchingColumns();
+map.Add(new("Id", "SourceId"));
+var dataflow = new Dataflow(link, map);
+```
+
 By supplying a function from source data-objects to destination objects a transformation can be made:
 
 ```c#
-Func<(int id, DateTime date, string name), (int, DateTime, string, DateTime)> map = (x) => (x.id, x.date, "SourceValue=" + x.name, DateTime.Now);
-var flow = new Dataflow(sourceTable, sourceConnectionString, destTable, destConnectionString, map);
+Func<(int id, DateTime date, string name), (int, DateTime, string, DateTime)> mapFunction = (x) => (x.id, x.date, "SourceValue=" + x.name, DateTime.Now);
+var flow = new Dataflow(sourceTable, sourceConnectionString, destTable, destConnectionString, mapFunction);
 ```
 
 ## Load Patterns
@@ -50,6 +59,7 @@ Some common standard patterns exist as well. Those are:
 * IncrementalId: Uses incrementing ids in the source to copy only new changes into the destination - be wary of updates and deletes in the source
 
 Patterns are given as optional arguments to Dataflows:
+
 ```c#
 var pattern = new IncrementalIdPattern(Id: 133);
 var flow = new Dataflow(sourceTable, sourceConnectionString, destTable, destConnectionString, pattern);
